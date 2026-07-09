@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --color-wa-green: #008069;
+  --color-wa-green-dark: #005e54;
+  --color-wa-green-light: #25d366;
+  --color-wa-teal: #128c7e;
+  --color-wa-blue: #34b7f1;
+  --color-wa-bg-cream: #efeae2;
+  --color-wa-bubble-sent: #d9fdd3;
+  --color-wa-bubble-received: #ffffff;
+  --color-wa-chat-gray: #f0f2f5;
+  --color-wa-incoming-tail: #ffffff;
+  --color-wa-outgoing-tail: #d9fdd3;
+  --color-wa-text-primary: #111b21;
+  --color-wa-text-secondary: #667781;
+  --color-wa-border-light: #e9edef;
+  
+  --font-wa: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  font-family: var(--font-wa);
+  background-color: #0c1317;
+  color: #e9edef;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Custom Scrollbars to match Android scrollbars (thin, subtle, only shows on scroll or very thin) */
+.wa-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.wa-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wa-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.wa-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-bubble {
+  animation: bubble-in 0.18s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes typing-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.animate-typing-dot {
+  animation: typing-bounce 1s infinite ease-in-out;
+}
+
+@keyframes pop-reaction {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-reaction {
+  animation: pop-reaction 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Custom shadow classes for WhatsApp Android replica components */
+.wa-header-shadow {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.wa-input-shadow {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.wa-bubble-shadow {
+  box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+}
+
+.wa-reaction-shadow {
+  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+}
