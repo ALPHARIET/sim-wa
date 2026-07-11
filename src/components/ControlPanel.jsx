@@ -15,7 +15,8 @@ export default function ControlPanel({
   setIsMuted,
   storySteps,
   currentStoryIndex,
-  lastExtractedJson
+  lastExtractedJson,
+  loadSimulation
 }) {
   const [customReplyText, setCustomReplyText] = useState('');
   const [showConfig, setShowConfig] = useState(true);
@@ -53,7 +54,32 @@ export default function ControlPanel({
         </button>
       </div>
 
-      {/* 1. Contact Settings */}
+      {/* 1. Simulation Mode Selection */}
+      <div className="flex flex-col gap-2 pb-3 border-b border-[#2d3a42]">
+        <label className="text-xs font-semibold text-[#8696a0] uppercase tracking-wider">Pilih Simulasi</label>
+        <div className="flex gap-2 mt-1">
+          <button 
+            onClick={() => loadSimulation('transporter')}
+            className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none"
+          >
+            Transporter
+          </button>
+          <button 
+            onClick={() => loadSimulation('farmer')}
+            className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none"
+          >
+            Petani
+          </button>
+          <button 
+            onClick={() => loadSimulation('distributor')}
+            className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none"
+          >
+            Distributor
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Contact Settings */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-[#8696a0] uppercase tracking-wider">Pengaturan Kontak</label>
         

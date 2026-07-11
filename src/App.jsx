@@ -11,24 +11,33 @@ import {
   User, Check, CheckCheck, Phone, Video, Mic, Volume2, Camera, ShieldAlert
 } from 'lucide-react';
 
-// Seed initial messages to make the UI look active upon launch
-const initialMessages = [
-  {
-    id: 10001,
-    text: "Halo! Selamat datang di WhatsApp PanganDali AI Extraction Agent (Gemma 3) Simulator. 👋\n\nSaya bertugas mendeteksi data panen petani untuk dimasukkan ke database secara terstruktur. Silakan kirim laporan panen Anda untuk diproses oleh sistem!\n\nContoh:\n\"Pak saya panen cabai merah 2,5 ton di Desa Sukamaju hari ini.\"",
-    type: "text",
-    timestamp: "12:00",
-    sender: "other",
-    reactions: []
-  }
-];
-
+import { transporterMessages, transporterConfig, farmerMessages, farmerConfig, distributorMessages, distributorConfig } from './data/dummyDialogues';
 export default function App() {
   // Simulator configurations and data states
-  const [messages, setMessages] = useState(initialMessages);
-  const [contactName, setContactName] = useState("PanganDali AI Agent");
-  const [contactStatus, setContactStatus] = useState("Online (Gemma 3)");
-  const [profilePic, setProfilePic] = useState("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80");
+  const [messages, setMessages] = useState(transporterMessages);
+  const [contactName, setContactName] = useState(transporterConfig.contactName);
+  const [contactStatus, setContactStatus] = useState(transporterConfig.contactStatus);
+  const [profilePic, setProfilePic] = useState(transporterConfig.profilePic);
+  
+  const loadSimulation = (type) => {
+    if (type === 'transporter') {
+      setMessages(transporterMessages);
+      setContactName(transporterConfig.contactName);
+      setContactStatus(transporterConfig.contactStatus);
+      setProfilePic(transporterConfig.profilePic);
+    } else if (type === 'farmer') {
+      setMessages(farmerMessages);
+      setContactName(farmerConfig.contactName);
+      setContactStatus(farmerConfig.contactStatus);
+      setProfilePic(farmerConfig.profilePic);
+    } else if (type === 'distributor') {
+      setMessages(distributorMessages);
+      setContactName(distributorConfig.contactName);
+      setContactStatus(distributorConfig.contactStatus);
+      setProfilePic(distributorConfig.profilePic);
+    }
+    setCurrentStoryIndex(0);
+  };
   
   // Interactive UI states
   const [selectedMessageId, setSelectedMessageId] = useState(null);
@@ -765,6 +774,7 @@ export default function App() {
         storySteps={farmerPresets}
         currentStoryIndex={currentStoryIndex}
         lastExtractedJson={lastExtractedJson}
+        loadSimulation={loadSimulation}
       />
       
     </div>
