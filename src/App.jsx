@@ -27,8 +27,46 @@ export default function App() {
   // Simulator configurations and data states
   const [messages, setMessages] = useState(initialMessages);
   const [contactName, setContactName] = useState("PanganDali AI Agent");
-  const [contactStatus, setContactStatus] = useState("Online (Gemma 3)");
+  const [contactStatus, setContactStatus] = useState(() => {
+    const initialMode = localStorage.getItem('sim_wa_engine_mode') || 'local';
+    const model = localStorage.getItem('sim_wa_gemini_model') || 'gemini-2.5-flash';
+    return initialMode === 'gemini' ? `Online (${model === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})` : "Online (Gemma 3)";
+  });
   const [profilePic, setProfilePic] = useState("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80");
+
+  // Live AI Chatbot configurations
+  const [engineMode, setEngineMode] = useState(() => {
+    return localStorage.getItem('sim_wa_engine_mode') || 'local';
+  });
+  const [geminiApiKey, setGeminiApiKey] = useState(() => {
+    return localStorage.getItem('sim_wa_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
+  });
+  const [geminiModel, setGeminiModel] = useState(() => {
+    return localStorage.getItem('sim_wa_gemini_model') || 'gemini-2.5-flash';
+  });
+
+  const handleSetEngineMode = (mode) => {
+    setEngineMode(mode);
+    localStorage.setItem('sim_wa_engine_mode', mode);
+    if (mode === 'gemini') {
+      setContactStatus(`Online (${geminiModel === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
+    } else {
+      setContactStatus("Online (Gemma 3)");
+    }
+  };
+
+  const handleSetGeminiApiKey = (key) => {
+    setGeminiApiKey(key);
+    localStorage.setItem('sim_wa_gemini_api_key', key);
+  };
+
+  const handleSetGeminiModel = (model) => {
+    setGeminiModel(model);
+    localStorage.setItem('sim_wa_gemini_model', model);
+    if (engineMode === 'gemini') {
+      setContactStatus(`Online (${model === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
+    }
+  };
   
   // Interactive UI states
   const [selectedMessageId, setSelectedMessageId] = useState(null);
@@ -131,25 +169,19 @@ export default function App() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // State flow logic for incoming auto-replies (PanganDali Gemma 3 AI Extractor)
-  const triggerAutoReply = (userMessageText) => {
-    // 1. Run client-side extraction mimic
+  // Helper to fallback to standard local rule-based simulation
+  const runLocalSimulationFallback = (userMessageText) => {
     const { csReply, extractionResult } = extractFarmerInfo(userMessageText);
-    
-    // Save to background database state (visualized in sidebar control panel)
     setLastExtractedJson(extractionResult);
 
-    // Step A: Contact changes to "Online" after 500ms
     setTimeout(() => {
       setContactStatus("Online");
     }, 500);
 
-    // Step B: Contact changes to "Ketik pesan..." (Typing...) after 1000ms
     setTimeout(() => {
       setContactStatus("Ketik pesan...");
     }, 1000);
 
-    // Step C: Send CS Friendly Response after 2200ms
     setTimeout(() => {
       const now = new Date();
       const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -167,6 +199,235 @@ export default function App() {
       setContactStatus("Online (Gemma 3)");
       playSound('received');
     }, 2200);
+  };
+
+  // State flow logic for incoming auto-replies (PanganDali Live Gemini / Local Extractor)
+  const triggerAutoReply = async (userMessageText) => {
+    if (engineMode === 'gemini') {
+      if (!geminiApiKey.trim()) {
+        triggerToast("Masukkan Gemini API Key terlebih dahulu di panel konfigurasi!");
+        runLocalSimulationFallback(userMessageText);
+        return;
+      }
+
+      // Step A: Contact changes to "Online" after 200ms
+      setTimeout(() => {
+        setContactStatus("Online");
+      }, 200);
+
+      // Step B: Contact changes to "Ketik pesan..." (Typing...) after 500ms
+      setTimeout(() => {
+        setContactStatus("Ketik pesan...");
+      }, 500);
+
+      try {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        // Format recent messages for context
+        const recentMessages = messages.slice(-10).map(m => {
+          const senderName = m.sender === 'me' ? 'Petani/User' : 'CS Agent (PanganDali)';
+          return `${senderName}: ${m.text || `[Media: ${m.type}]`}`;
+        }).join('\n');
+
+        const promptText = `Hari ini tanggal: ${todayStr}, Kemarin tanggal: ${yesterdayStr}.
+Riwayat chat terbaru:
+${recentMessages}
+
+Pesan terbaru dari Petani/User: "${userMessageText}"
+
+Tolong berikan respons yang ramah, alami, dan tidak kaku dalam properti 'csReply' (sebagai agen CS PanganDali dalam Bahasa Indonesia) dan hasil ekstraksi data panen di 'extractionResult' sesuai format skema JSON.`;
+
+        const responseSchema = {
+          type: "OBJECT",
+          properties: {
+            csReply: {
+              type: "STRING",
+              description: "Jawaban CS yang ramah, alami, bervariasi, dan membantu dalam Bahasa Indonesia, merespons pesan terbaru petani tanpa menggunakan pola template yang kaku."
+            },
+            extractionResult: {
+              type: "OBJECT",
+              description: "Hasil analisis intent dan ekstraksi entitas laporan panen.",
+              properties: {
+                intent: {
+                  type: "STRING",
+                  enum: ["laporan_panen", "pembatalan", "update_panen", "tanya_harga", "tanya_transporter", "tanya_status", "percakapan_umum", "lainnya"],
+                  description: "Kategori maksud pesan terbaru."
+                },
+                data: {
+                  type: "OBJECT",
+                  description: "Data terstruktur yang berhasil diekstrak (gunakan null jika field tidak ada).",
+                  properties: {
+                    nama_petani: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING" },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    nomor_hp: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING" },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    komoditas: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING", description: "Nama komoditas yang dinormalisasi (misal Cabai, Padi, Jagung, Bawang Merah, Bawang Putih, Kentang, Tomat, Kedelai)." },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    jumlah: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "NUMBER", description: "Jumlah numerik saja (misal 2.5 atau 800)" },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    satuan: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING", description: "Satuan yang dinormalisasi (misal ton, kg, kwintal)." },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    desa: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING", description: "Nama Desa" },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    tanggal_panen: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING", description: "Format YYYY-MM-DD" },
+                        confidence: { type: "NUMBER" }
+                      }
+                    },
+                    kualitas: {
+                      type: "OBJECT",
+                      properties: {
+                        value: { type: "STRING", description: "Kualitas/grade (misal super, A, dll)" },
+                        confidence: { type: "NUMBER" }
+                      }
+                    }
+                  }
+                }
+              },
+              required: ["intent", "data"]
+            }
+          },
+          required: ["csReply", "extractionResult"]
+        };
+
+        const systemInstruction = `Anda adalah PanganDali AI Agent (Live Chatbot). Tugas Anda adalah mendeteksi data panen petani untuk dimasukkan ke database secara terstruktur, dan memberikan respons WhatsApp yang sangat ramah, bervariasi, dan alami dalam bahasa Indonesia.
+
+PENTING UNTUK JAWABAN ANDA (csReply):
+1. JANGAN PERNAH memberikan respons template yang kaku dan berulang (seperti: "Halo Pak/Bu! Laporan panen Cabai sebanyak 2 ton... berhasil kami terima").
+2. Berbicaralah layaknya manusia yang hangat, santai, dan penuh empati. Gunakan variasi ekspresi, sapaan hangat, emoji yang ramah, dan gaya penulisan chat WhatsApp alami (misal: "Halo Pak Ahmad! Wah mantap sekali panenannya...", "Siap Pak, laporan panen cabai rawitnya sudah masuk sistem kami ya. Ada yang bisa dibantu lagi, Pak?").
+3. Jika petani mengajukan pertanyaan non-laporan (misalnya bertanya harga, menyapa, atau bertanya tentang pengiriman), jawablah secara langsung dan informatif sesuai konteks, jangan memaksa membicarakan laporan panen jika mereka tidak melaporkannya.
+4. Sesuaikan gaya bicara Anda secara dinamis dengan pesan terakhir petani.
+
+PENTING UNTUK DATA EKSTRAKSI (extractionResult):
+1. Format output Anda harus selalu berupa JSON yang valid sesuai responseSchema yang disediakan.
+2. Jika ada informasi yang tidak ada dalam pesan, berikan nilai null untuk value (dan 0 untuk confidence).
+3. Normalisasikan nama komoditas (misal cabe/lombok -> Cabai, padi/gabah -> Padi, jgung -> Jagung).
+4. Normalisasikan satuan (misal ton/tn -> ton, kg/kilo -> kg).
+5. Konversikan tanggal relatif (misal 'hari ini' -> ${todayStr}, 'kemarin' -> ${yesterdayStr}).`;
+
+        const requestBody = {
+          contents: [
+            {
+              parts: [
+                { text: promptText }
+              ]
+            }
+          ],
+          systemInstruction: {
+            parts: [
+              { text: systemInstruction }
+            ]
+          },
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: responseSchema,
+            temperature: 0.2
+          }
+        };
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!jsonText) {
+          throw new Error("Respon kosong dari Gemini API.");
+        }
+
+        const parsedResult = JSON.parse(jsonText);
+        const { csReply, extractionResult } = parsedResult;
+
+        // Ensure default fields are present
+        const completeData = {
+          komoditas: { value: null, confidence: 0 },
+          jumlah: { value: null, confidence: 0 },
+          satuan: { value: null, confidence: 0 },
+          desa: { value: null, confidence: 0 },
+          tanggal_panen: { value: null, confidence: 0 },
+          kualitas: { value: null, confidence: 0 },
+          ...extractionResult.data
+        };
+
+        const finalizedResult = {
+          intent: extractionResult.intent || 'lainnya',
+          data: completeData
+        };
+
+        setLastExtractedJson(finalizedResult);
+
+        // Send CS Friendly Response
+        const now = new Date();
+        const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        
+        const newReplyCS = {
+          id: Date.now() + 1,
+          text: csReply,
+          type: "text",
+          timestamp,
+          sender: "other",
+          reactions: []
+        };
+
+        setMessages(prev => [...prev, newReplyCS]);
+        setContactStatus(`Online (${geminiModel === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
+        playSound('received');
+
+      } catch (err) {
+        console.error("Gemini API Error:", err);
+        triggerToast("Koneksi Gemini gagal! Menggunakan simulasi lokal.");
+        runLocalSimulationFallback(userMessageText);
+      }
+    } else {
+      runLocalSimulationFallback(userMessageText);
+    }
   };
 
   // Handle message creation from the User (typing and sending)
@@ -765,6 +1026,12 @@ export default function App() {
         storySteps={farmerPresets}
         currentStoryIndex={currentStoryIndex}
         lastExtractedJson={lastExtractedJson}
+        engineMode={engineMode}
+        setEngineMode={handleSetEngineMode}
+        geminiApiKey={geminiApiKey}
+        setGeminiApiKey={handleSetGeminiApiKey}
+        geminiModel={geminiModel}
+        setGeminiModel={handleSetGeminiModel}
       />
       
     </div>

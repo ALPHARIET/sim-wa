@@ -15,7 +15,13 @@ export default function ControlPanel({
   setIsMuted,
   storySteps,
   currentStoryIndex,
-  lastExtractedJson
+  lastExtractedJson,
+  engineMode,
+  setEngineMode,
+  geminiApiKey,
+  setGeminiApiKey,
+  geminiModel,
+  setGeminiModel
 }) {
   const [customReplyText, setCustomReplyText] = useState('');
   const [showConfig, setShowConfig] = useState(true);
@@ -51,6 +57,84 @@ export default function ControlPanel({
         >
           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
+      </div>
+
+      {/* AI Chatbot Engine Configuration */}
+      <div className="flex flex-col gap-2 bg-[#111b21] p-3 rounded-lg border border-[#2d3a42]">
+        <label className="text-xs font-semibold text-wa-green-light uppercase tracking-wider flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-wa-green-light animate-pulse"></span>
+          <span>Mesin AI Chatbot</span>
+        </label>
+        
+        {/* Toggle Mode */}
+        <div className="flex gap-1 mt-1 bg-[#1f2c33] p-0.5 rounded border border-[#2d3a42]">
+          <button
+            type="button"
+            onClick={() => setEngineMode('local')}
+            className={`flex-1 py-1.5 rounded text-[10px] font-semibold transition-all duration-100 focus:outline-none cursor-pointer ${
+              engineMode === 'local'
+                ? 'bg-wa-green text-white shadow'
+                : 'text-[#8696a0] hover:text-[#e9edef]'
+            }`}
+          >
+            Simulasi Lokal
+          </button>
+          <button
+            type="button"
+            onClick={() => setEngineMode('gemini')}
+            className={`flex-1 py-1.5 rounded text-[10px] font-semibold transition-all duration-100 focus:outline-none cursor-pointer ${
+              engineMode === 'gemini'
+                ? 'bg-wa-green text-white shadow'
+                : 'text-[#8696a0] hover:text-[#e9edef]'
+            }`}
+          >
+            Gemini Live AI
+          </button>
+        </div>
+
+        {engineMode === 'gemini' && (
+          <div className="flex flex-col gap-2.5 mt-2 pt-2 border-t border-[#2a3942] animate-bubble">
+            {/* Model Selector */}
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] text-[#8696a0]">Pilih Model</span>
+              <select
+                value={geminiModel}
+                onChange={(e) => setGeminiModel(e.target.value)}
+                className="w-full bg-[#111b21] border border-[#2d3a42] rounded px-2.5 py-1.5 text-xs text-white outline-none focus:border-wa-green-light cursor-pointer"
+              >
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Rekomendasi)</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+              </select>
+            </div>
+
+            {/* API Key Input */}
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] text-[#8696a0]">Gemini API Key</span>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Masukkan Gemini API Key..."
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  className="w-full bg-[#111b21] border border-[#2d3a42] rounded pl-2.5 pr-10 py-1.5 text-xs text-white outline-none focus:border-wa-green-light font-mono"
+                />
+                {geminiApiKey && (
+                  <button
+                    type="button"
+                    onClick={() => setGeminiApiKey('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-300 text-[10px] font-bold focus:outline-none cursor-pointer"
+                    title="Hapus Key"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <span className="text-[9.5px] text-[#8696a0] leading-normal mt-0.5">
+                Dapatkan API key gratis dari <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-wa-green-light hover:underline font-semibold">Google AI Studio</a>.
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 1. Contact Settings */}
