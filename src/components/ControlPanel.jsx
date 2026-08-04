@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Play, RefreshCw, Volume2, VolumeX, UserPlus, FileText, MapPin, Image as ImageIcon, Smile, MessageSquareQuote } from 'lucide-react';
+import { Settings, Play, RefreshCw, Volume2, VolumeX, UserPlus, FileText, MapPin, Image as ImageIcon, Smile, MessageSquareQuote, X } from 'lucide-react';
 
 export default function ControlPanel({
   contactName,
@@ -21,7 +21,9 @@ export default function ControlPanel({
   geminiApiKey,
   setGeminiApiKey,
   geminiModel,
-  setGeminiModel
+  setGeminiModel,
+  loadSimulation,
+  onClose
 }) {
   const [customReplyText, setCustomReplyText] = useState('');
   const [showConfig, setShowConfig] = useState(true);
@@ -50,13 +52,49 @@ export default function ControlPanel({
           <Settings size={20} className="text-wa-green-light" />
           <h1 className="text-base font-bold tracking-wide">Simulation Controller</h1>
         </div>
-        <button 
-          onClick={() => setIsMuted(!isMuted)}
-          className={`p-1.5 rounded-md hover:bg-[#2a3942] transition-colors focus:outline-none ${isMuted ? 'text-red-400' : 'text-wa-green-light'}`}
-          title={isMuted ? "Unmute Sound" : "Mute Sound"}
-        >
-          {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => setIsMuted(!isMuted)}
+            className={`p-1.5 rounded-md hover:bg-[#2a3942] transition-colors focus:outline-none ${isMuted ? 'text-red-400' : 'text-wa-green-light'}`}
+            title={isMuted ? "Unmute Sound" : "Mute Sound"}
+          >
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="p-1.5 rounded-md text-[#8696a0] hover:text-white hover:bg-[#2a3942] transition-colors focus:outline-none cursor-pointer"
+              title="Sembunyikan Controller"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Simulation Mode Selection */}
+      <div className="flex flex-col gap-2 pb-3 border-b border-[#2d3a42]">
+        <label className="text-xs font-semibold text-[#8696a0] uppercase tracking-wider">Pilih Simulasi</label>
+        <div className="flex gap-2 mt-1">
+          <button 
+            onClick={() => loadSimulation && loadSimulation('transporter')}
+            className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none cursor-pointer"
+          >
+            Transporter
+          </button>
+          <button 
+            onClick={() => loadSimulation && loadSimulation('farmer')}
+            className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none cursor-pointer"
+          >
+            Petani
+          </button>
+          <button 
+            onClick={() => loadSimulation && loadSimulation('distributor')}
+            className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none cursor-pointer"
+          >
+            Distributor
+          </button>
+        </div>
       </div>
 
       {/* AI Chatbot Engine Configuration */}
@@ -70,7 +108,7 @@ export default function ControlPanel({
         <div className="flex gap-1 mt-1 bg-[#1f2c33] p-0.5 rounded border border-[#2d3a42]">
           <button
             type="button"
-            onClick={() => setEngineMode('local')}
+            onClick={() => setEngineMode && setEngineMode('local')}
             className={`flex-1 py-1.5 rounded text-[10px] font-semibold transition-all duration-100 focus:outline-none cursor-pointer ${
               engineMode === 'local'
                 ? 'bg-wa-green text-white shadow'
@@ -81,7 +119,7 @@ export default function ControlPanel({
           </button>
           <button
             type="button"
-            onClick={() => setEngineMode('gemini')}
+            onClick={() => setEngineMode && setEngineMode('gemini')}
             className={`flex-1 py-1.5 rounded text-[10px] font-semibold transition-all duration-100 focus:outline-none cursor-pointer ${
               engineMode === 'gemini'
                 ? 'bg-wa-green text-white shadow'
@@ -99,7 +137,7 @@ export default function ControlPanel({
               <span className="text-[11px] text-[#8696a0]">Pilih Model</span>
               <select
                 value={geminiModel}
-                onChange={(e) => setGeminiModel(e.target.value)}
+                onChange={(e) => setGeminiModel && setGeminiModel(e.target.value)}
                 className="w-full bg-[#111b21] border border-[#2d3a42] rounded px-2.5 py-1.5 text-xs text-white outline-none focus:border-wa-green-light cursor-pointer"
               >
                 <option value="gemini-2.5-flash">Gemini 2.5 Flash (Rekomendasi)</option>
@@ -115,13 +153,13 @@ export default function ControlPanel({
                   type="password"
                   placeholder="Masukkan Gemini API Key..."
                   value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  onChange={(e) => setGeminiApiKey && setGeminiApiKey(e.target.value)}
                   className="w-full bg-[#111b21] border border-[#2d3a42] rounded pl-2.5 pr-10 py-1.5 text-xs text-white outline-none focus:border-wa-green-light font-mono"
                 />
                 {geminiApiKey && (
                   <button
                     type="button"
-                    onClick={() => setGeminiApiKey('')}
+                    onClick={() => setGeminiApiKey && setGeminiApiKey('')}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-300 text-[10px] font-bold focus:outline-none cursor-pointer"
                     title="Hapus Key"
                   >
@@ -137,7 +175,7 @@ export default function ControlPanel({
         )}
       </div>
 
-      {/* 1. Contact Settings */}
+      {/* Contact Settings */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-[#8696a0] uppercase tracking-wider">Pengaturan Kontak</label>
         

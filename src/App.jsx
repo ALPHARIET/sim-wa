@@ -8,31 +8,16 @@ import ControlPanel from './components/ControlPanel';
 import { extractFarmerInfo, farmerPresets } from './data/defaultScript';
 import { 
   X, CornerUpLeft, Trash2, Copy, Info, Share, 
-  User, Check, CheckCheck, Phone, Video, Mic, Volume2, Camera, ShieldAlert
+  User, Check, CheckCheck, Phone, Video, Mic, Volume2, Camera, ShieldAlert, Sliders
 } from 'lucide-react';
 
-// Seed initial messages to make the UI look active upon launch
-const initialMessages = [
-  {
-    id: 10001,
-    text: "Halo! Selamat datang di WhatsApp PanganDali AI Extraction Agent (Gemma 3) Simulator. 👋\n\nSaya bertugas mendeteksi data panen petani untuk dimasukkan ke database secara terstruktur. Silakan kirim laporan panen Anda untuk diproses oleh sistem!\n\nContoh:\n\"Pak saya panen cabai merah 2,5 ton di Desa Sukamaju hari ini.\"",
-    type: "text",
-    timestamp: "12:00",
-    sender: "other",
-    reactions: []
-  }
-];
-
+import { transporterMessages, transporterConfig, farmerMessages, farmerConfig, distributorMessages, distributorConfig } from './data/dummyDialogues';
 export default function App() {
   // Simulator configurations and data states
-  const [messages, setMessages] = useState(initialMessages);
-  const [contactName, setContactName] = useState("PanganDali AI Agent");
-  const [contactStatus, setContactStatus] = useState(() => {
-    const initialMode = localStorage.getItem('sim_wa_engine_mode') || 'local';
-    const model = localStorage.getItem('sim_wa_gemini_model') || 'gemini-2.5-flash';
-    return initialMode === 'gemini' ? `Online (${model === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})` : "Online (Gemma 3)";
-  });
-  const [profilePic, setProfilePic] = useState("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80");
+  const [messages, setMessages] = useState(transporterMessages);
+  const [contactName, setContactName] = useState(transporterConfig.contactName);
+  const [contactStatus, setContactStatus] = useState(transporterConfig.contactStatus);
+  const [profilePic, setProfilePic] = useState(transporterConfig.profilePic);
 
   // Live AI Chatbot configurations
   const [engineMode, setEngineMode] = useState(() => {
@@ -67,8 +52,29 @@ export default function App() {
       setContactStatus(`Online (${model === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
     }
   };
+
+  const loadSimulation = (type) => {
+    if (type === 'transporter') {
+      setMessages(transporterMessages);
+      setContactName(transporterConfig.contactName);
+      setContactStatus(transporterConfig.contactStatus);
+      setProfilePic(transporterConfig.profilePic);
+    } else if (type === 'farmer') {
+      setMessages(farmerMessages);
+      setContactName(farmerConfig.contactName);
+      setContactStatus(farmerConfig.contactStatus);
+      setProfilePic(farmerConfig.profilePic);
+    } else if (type === 'distributor') {
+      setMessages(distributorMessages);
+      setContactName(distributorConfig.contactName);
+      setContactStatus(distributorConfig.contactStatus);
+      setProfilePic(distributorConfig.profilePic);
+    }
+    setCurrentStoryIndex(0);
+  };
   
   // Interactive UI states
+  const [isControlPanelOpen, setIsControlPanelOpen] = useState(true);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const [replyingMessage, setReplyingMessage] = useState(null);
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
@@ -1011,28 +1017,44 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
       </PhoneFrame>
 
       {/* 2. SIDEBAR CONTROLLER PANEL */}
-      <ControlPanel
-        contactName={contactName}
-        setContactName={setContactName}
-        contactStatus={contactStatus}
-        setContactStatus={setContactStatus}
-        profilePic={profilePic}
-        setProfilePic={setProfilePic}
-        onTriggerNextStory={handleTriggerNextStory}
-        onTriggerCustomReply={handleTriggerCustomReply}
-        onResetChat={handleResetChat}
-        isMuted={isMuted}
-        setIsMuted={setIsMuted}
-        storySteps={farmerPresets}
-        currentStoryIndex={currentStoryIndex}
-        lastExtractedJson={lastExtractedJson}
-        engineMode={engineMode}
-        setEngineMode={handleSetEngineMode}
-        geminiApiKey={geminiApiKey}
-        setGeminiApiKey={handleSetGeminiApiKey}
-        geminiModel={geminiModel}
-        setGeminiModel={handleSetGeminiModel}
-      />
+      {isControlPanelOpen && (
+        <ControlPanel
+          contactName={contactName}
+          setContactName={setContactName}
+          contactStatus={contactStatus}
+          setContactStatus={setContactStatus}
+          profilePic={profilePic}
+          setProfilePic={setProfilePic}
+          onTriggerNextStory={handleTriggerNextStory}
+          onTriggerCustomReply={handleTriggerCustomReply}
+          onResetChat={handleResetChat}
+          isMuted={isMuted}
+          setIsMuted={setIsMuted}
+          storySteps={farmerPresets}
+          currentStoryIndex={currentStoryIndex}
+          lastExtractedJson={lastExtractedJson}
+          engineMode={engineMode}
+          setEngineMode={handleSetEngineMode}
+          geminiApiKey={geminiApiKey}
+          setGeminiApiKey={handleSetGeminiApiKey}
+          geminiModel={geminiModel}
+          setGeminiModel={handleSetGeminiModel}
+          loadSimulation={loadSimulation}
+          onClose={() => setIsControlPanelOpen(false)}
+        />
+      )}
+
+      {/* Floating Toggle Button when Controller Panel is hidden */}
+      {!isControlPanelOpen && (
+        <button
+          onClick={() => setIsControlPanelOpen(true)}
+          className="fixed bottom-5 right-5 z-40 bg-[#1f2c33] hover:bg-[#2a3942] text-wa-green-light border border-[#2d3a42] px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer animate-bubble"
+          title="Tampilkan Simulation Controller"
+        >
+          <Sliders size={16} />
+          <span>Simulation Controller</span>
+        </button>
+      )}
       
     </div>
   );
