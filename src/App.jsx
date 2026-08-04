@@ -27,16 +27,17 @@ export default function App() {
     return localStorage.getItem('sim_wa_gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
   });
   const [geminiModel, setGeminiModel] = useState(() => {
-    return localStorage.getItem('sim_wa_gemini_model') || 'gemini-2.5-flash';
+    const saved = localStorage.getItem('sim_wa_gemini_model');
+    return (saved && saved !== 'gemini-2.5-flash' && saved !== 'gemini-2.0-flash') ? saved : 'gemini-flash-latest';
   });
 
   const handleSetEngineMode = (mode) => {
     setEngineMode(mode);
     localStorage.setItem('sim_wa_engine_mode', mode);
     if (mode === 'gemini') {
-      setContactStatus(`Online (${geminiModel === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
+      setContactStatus(`Online (${geminiModel === 'gemini-flash-latest' ? 'Gemini Flash' : geminiModel})`);
     } else {
-      setContactStatus("Online (Gemma 3)");
+      setContactStatus("Online (Simulasi NER)");
     }
   };
 
@@ -49,7 +50,7 @@ export default function App() {
     setGeminiModel(model);
     localStorage.setItem('sim_wa_gemini_model', model);
     if (engineMode === 'gemini') {
-      setContactStatus(`Online (${model === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
+      setContactStatus(`Online (${model === 'gemini-flash-latest' ? 'Gemini Flash' : model})`);
     }
   };
 
@@ -202,7 +203,7 @@ export default function App() {
       };
 
       setMessages(prev => [...prev, newReplyCS]);
-      setContactStatus("Online (Gemma 3)");
+      setContactStatus("Online (Simulasi NER)");
       playSound('received');
     }, 2200);
   };
@@ -283,7 +284,7 @@ Tolong berikan respons yang ramah, alami, dan tidak kaku dalam properti 'csReply
                     komoditas: {
                       type: "OBJECT",
                       properties: {
-                        value: { type: "STRING", description: "Nama komoditas yang dinormalisasi (misal Cabai, Padi, Jagung, Bawang Merah, Bawang Putih, Kentang, Tomat, Kedelai)." },
+                        value: { type: "STRING", description: "Nama komoditas yang dinormalisasi (misal Cabai Besar, Kubis, Terung, Wortel, Kembang Kol, Tomat)." },
                         confidence: { type: "NUMBER" }
                       }
                     },
@@ -297,7 +298,7 @@ Tolong berikan respons yang ramah, alami, dan tidak kaku dalam properti 'csReply
                     satuan: {
                       type: "OBJECT",
                       properties: {
-                        value: { type: "STRING", description: "Satuan yang dinormalisasi (misal ton, kg, kwintal)." },
+                        value: { type: "STRING", description: "Satuan yang dinormalisasi (misal ton, kg, kwintal, karung, ikat, pikul)." },
                         confidence: { type: "NUMBER" }
                       }
                     },
@@ -342,9 +343,9 @@ PENTING UNTUK JAWABAN ANDA (csReply):
 PENTING UNTUK DATA EKSTRAKSI (extractionResult):
 1. Format output Anda harus selalu berupa JSON yang valid sesuai responseSchema yang disediakan.
 2. Jika ada informasi yang tidak ada dalam pesan, berikan nilai null untuk value (dan 0 untuk confidence).
-3. Normalisasikan nama komoditas (misal cabe/lombok -> Cabai, padi/gabah -> Padi, jgung -> Jagung).
-4. Normalisasikan satuan (misal ton/tn -> ton, kg/kilo -> kg).
-5. Konversikan tanggal relatif (misal 'hari ini' -> ${todayStr}, 'kemarin' -> ${yesterdayStr}).`;
+3. Normalisasikan nama komoditas (misal cabe/lombok -> Cabai Besar, kol -> Kubis, terong -> Terung, wortel -> Wortel, kembang kol -> Kembang Kol). Semua variasi cabai dinormalisasi ke 'Cabai Besar'.
+4. Normalisasikan satuan (misal ton/tn -> ton, kg/kilo -> kg, karung -> karung, ikat -> ikat, pikul -> pikul).
+5. Konversikan tanggal relatif (misal 'hari ini' -> ${todayStr}, 'kemarin' -> ${yesterdayStr}, 'besok' -> H+1, 'lusa' -> H+2).`;
 
         const requestBody = {
           contents: [
@@ -423,12 +424,12 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
         };
 
         setMessages(prev => [...prev, newReplyCS]);
-        setContactStatus(`Online (${geminiModel === 'gemini-2.5-flash' ? 'Gemini 2.5 Flash' : 'Gemini 1.5 Flash'})`);
+        setContactStatus(`Online (${geminiModel === 'gemini-flash-latest' ? 'Gemini Flash' : geminiModel})`);
         playSound('received');
 
       } catch (err) {
         console.error("Gemini API Error:", err);
-        triggerToast("Koneksi Gemini gagal! Menggunakan simulasi lokal.");
+        triggerToast(`Koneksi Gemini gagal: ${err.message || err}`);
         runLocalSimulationFallback(userMessageText);
       }
     } else {
@@ -505,9 +506,9 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
     } else if (mediaType === 'location') {
       payload = {
         type: 'location',
-        address: 'Sudirman Central Business District (SCBD), Kebayoran Baru, Jakarta Selatan',
-        latitude: -6.2244,
-        longitude: 106.8096
+        address: 'Jl. Suprapto, Kel. Pengantungan, Kec. Ratu Samban, Kota Bengkulu',
+        latitude: -3.7928,
+        longitude: 102.2608
       };
     } else if (mediaType === 'audio') {
       payload = {

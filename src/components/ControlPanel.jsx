@@ -80,7 +80,7 @@ export default function ControlPanel({
             onClick={() => loadSimulation && loadSimulation('transporter')}
             className="flex-1 bg-[#111b21] hover:bg-[#2a3942] border border-[#2d3a42] text-wa-green-light py-2 rounded text-xs font-semibold transition-colors focus:outline-none cursor-pointer"
           >
-            Transporter
+            Mitra Logistik
           </button>
           <button 
             onClick={() => loadSimulation && loadSimulation('farmer')}
@@ -140,8 +140,9 @@ export default function ControlPanel({
                 onChange={(e) => setGeminiModel && setGeminiModel(e.target.value)}
                 className="w-full bg-[#111b21] border border-[#2d3a42] rounded px-2.5 py-1.5 text-xs text-white outline-none focus:border-wa-green-light cursor-pointer"
               >
-                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Rekomendasi)</option>
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                <option value="gemini-flash-latest">Gemini Flash (Rekomendasi / Gratis)</option>
+                <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
               </select>
             </div>
 
@@ -282,14 +283,14 @@ export default function ControlPanel({
         </div>
       </div>
 
-      {/* Real-time PanganDali Database Log (Gemma 3 Extraction Output) */}
+      {/* Real-time PanganDali Database Log (NER Extraction Output) */}
       <div className="flex flex-col gap-2 border-t border-[#2d3a42] pt-3">
         <label className="text-xs font-semibold text-wa-green-light uppercase tracking-wider flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-wa-green-light animate-pulse"></span>
-          <span>Database PanganDali (Gemma 3 Log)</span>
+          <span>Database PanganDali (Log Ekstraksi NER)</span>
         </label>
         <p className="text-[10px] text-[#8696a0] leading-relaxed">
-          Data terstruktur hasil ekstraksi Gemma 3 yang masuk ke database sistem PanganDali secara otomatis:
+          Data terstruktur hasil ekstraksi model NER berbasis BERT yang masuk ke database sistem PanganDali secara otomatis:
         </p>
         <div className="w-full bg-[#111b21] border border-[#2d3a42] rounded-lg p-2.5 overflow-hidden">
           {lastExtractedJson ? (
@@ -326,26 +327,26 @@ export default function ControlPanel({
 
       {/* 4. Help and Keywords list */}
       <div className="flex-1 flex flex-col gap-2 border-t border-[#2d3a42] pt-3 text-xs text-[#8696a0]">
-        <label className="text-xs font-semibold text-[#8696a0] uppercase tracking-wider">Deteksi Informasi Gemma 3</label>
+        <label className="text-xs font-semibold text-[#8696a0] uppercase tracking-wider">Deteksi Informasi Model NER</label>
         <p className="text-[10px] leading-relaxed">
-          Kirim laporan panen melalui input chat HP. Model Gemma 3 PanganDali AI akan mengekstrak:
+          Kirim laporan panen melalui input chat HP. Model NER PanganDali AI akan mengekstrak:
         </p>
         <div className="flex flex-col gap-1.5 text-[10.5px]">
           <div className="bg-[#111b21] p-1.5 rounded border border-[#2d3a42] flex flex-col gap-0.5">
-            <span className="text-white font-bold">🌾 Komoditas (Normalisasi)</span>
-            <span className="text-[9.5px]">Cabe / lombok &rarr; <span className="text-wa-green-light">Cabai</span>, Gabah / beras &rarr; <span className="text-wa-green-light">Padi</span></span>
+            <span className="text-white font-bold">🌾 5 Komoditas Pilot (Normalisasi)</span>
+            <span className="text-[9.5px]">Cabe / lombok &rarr; <span className="text-wa-green-light">Cabai Besar</span>, kol &rarr; <span className="text-wa-green-light">Kubis</span>, blumkol &rarr; <span className="text-wa-green-light">Kembang Kol</span></span>
           </div>
           <div className="bg-[#111b21] p-1.5 rounded border border-[#2d3a42] flex flex-col gap-0.5">
-            <span className="text-white font-bold">⚖️ Jumlah & Satuan</span>
-            <span className="text-[9.5px]">Desimal Indonesia <span className="text-wa-green-light">2,5 &rarr; 2.5</span>. Unit <span className="text-wa-green-light">kilo / kg &rarr; kg</span></span>
+            <span className="text-white font-bold">⚖️ Satuan Lokal & Konversi</span>
+            <span className="text-[9.5px]">Satuan lokal <span className="text-wa-green-light">karung, ikat, pikul</span> didukung + perkiraan konversi kg</span>
           </div>
           <div className="bg-[#111b21] p-1.5 rounded border border-[#2d3a42] flex flex-col gap-0.5">
-            <span className="text-white font-bold">📅 Tanggal Panen</span>
-            <span className="text-[9.5px]">"hari ini" &rarr; <span className="text-wa-green-light">2026-07-09</span>, "kemarin" &rarr; <span className="text-wa-green-light">2026-07-08</span></span>
+            <span className="text-white font-bold">📅 Waktu Relatif</span>
+            <span className="text-[9.5px]">"besok", "lusa", "hari jumat" dinormalkan ke tanggal absolut</span>
           </div>
           <div className="bg-[#111b21] p-1.5 rounded border border-[#2d3a42] flex flex-col gap-0.5">
-            <span className="text-white font-bold">📍 Lokasi & Wilayah</span>
-            <span className="text-[9.5px]">Desa, Kecamatan, Kabupaten, Provinsi (dengan confidence score)</span>
+            <span className="text-white font-bold">📍 Desa Pilot (Selupu Rejang)</span>
+            <span className="text-[9.5px]">Desa Lubuk Ubar, Kampung Baru, Air Putih Lama, Mekar Sari</span>
           </div>
         </div>
       </div>

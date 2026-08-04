@@ -234,7 +234,7 @@ export default function MessageBubble({
                   </div>
                   <div className="p-2 bg-white text-left text-xs border-t border-[#0000000b]">
                     <div className="font-semibold text-[13px] text-wa-text-primary truncate">Bagikan Lokasi Terkini</div>
-                    <div className="text-[11px] text-wa-text-secondary line-clamp-2 mt-0.5">{address || 'Senayan, Jakarta Selatan'}</div>
+                    <div className="text-[11px] text-wa-text-secondary line-clamp-2 mt-0.5">{address || 'Pasar Panorama, Kota Bengkulu'}</div>
                   </div>
                 </div>
               )}
