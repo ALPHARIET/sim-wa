@@ -576,3 +576,53 @@ export const farmerPresets = [
     text: "hsil panen cabe besar 150 kilo di lubukubar bsok sore"
   }
 ];
+
+export const transporterPresets = [
+  {
+    title: "Cari Muatan",
+    text: "Halo, saya sedang mencari muatan balik."
+  },
+  {
+    title: "Terima Muatan",
+    text: "AMBIL 1"
+  },
+  {
+    title: "Sampai Penjemputan",
+    text: "SAMPAI"
+  },
+  {
+    title: "Selesai Muat",
+    text: "MUAT"
+  },
+  {
+    title: "Mulai Jalan",
+    text: "BERANGKAT"
+  },
+  {
+    title: "Tiba di Tujuan",
+    text: "TIBA"
+  },
+  {
+    title: "Selesai",
+    text: "SELESAI"
+  }
+];
+
+export const distributorPresets = [
+  {
+    title: "Cari Pasokan",
+    text: "Saya mencari pasokan cabai besar sekitar 300 kg untuk Kota Bengkulu."
+  },
+  {
+    title: "Ambil Penawaran",
+    text: "AMBIL"
+  },
+  {
+    title: "Konfirmasi Logistik",
+    text: "SETUJU TRUK"
+  },
+  {
+    title: "Barang Diterima",
+    text: "SELESAI"
+  }
+];

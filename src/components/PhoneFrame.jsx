@@ -18,12 +18,12 @@ export default function PhoneFrame({ children }) {
   }, []);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#0b141a] p-0 md:p-6 select-none font-wa">
+    <div className="flex items-center justify-center h-full w-full p-0 md:p-2 select-none font-wa">
       {/* Phone chassis - only styled with bezel and shadow on medium screens and larger */}
-      <div className="relative w-full h-screen md:h-[820px] md:w-[390px] bg-[#0c1317] md:rounded-[42px] md:border-[10px] md:border-[#2d383e] md:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col transition-all duration-300">
+      <div className="relative w-full h-full md:h-[820px] md:max-w-[390px] bg-[#0c1317] md:rounded-[36px] md:border-[8px] md:border-[#2d383e] shadow-2xl overflow-hidden flex flex-col transition-all duration-300">
         
         {/* Camera notch / punch-hole (top center) - desktop only */}
-        <div className="hidden md:block absolute top-[12px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-black rounded-full z-50"></div>
+        <div className="hidden md:block absolute top-[10px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-black rounded-full z-50"></div>
         
         {/* Status Bar (Android Style) */}
         <div className="w-full h-8 bg-[#005e54] text-white flex justify-between items-center px-6 text-xs font-semibold z-40 select-none shrink-0 pt-1">
