@@ -5,18 +5,18 @@ import ChatArea from './ChatArea';
 import MessageInput from './MessageInput';
 import AttachmentTray from './AttachmentTray';
 import { extractFarmerInfo } from '../data/defaultScript';
-import { 
-  X, CornerUpLeft, Trash2, Copy, Info, Share, 
+import {
+  X, CornerUpLeft, Trash2, Copy, Info, Share,
   User, Check, CheckCheck, Phone, Video, Mic, ShieldAlert
 } from 'lucide-react';
 import { transporterMessages, transporterConfig, farmerMessages, farmerConfig, distributorMessages, distributorConfig } from '../data/dummyDialogues';
 
-const SimulationWindow = forwardRef(({ 
-  simulationType, 
-  engineMode, 
-  geminiApiKey, 
-  geminiModel, 
-  isMuted, 
+const SimulationWindow = forwardRef(({
+  simulationType,
+  engineMode,
+  geminiApiKey,
+  geminiModel,
+  isMuted,
   onEvent,
   globalStock
 }, ref) => {
@@ -46,7 +46,7 @@ const SimulationWindow = forwardRef(({
   const [isAttachmentOpen, setIsAttachmentOpen] = useState(false);
   const [scrollToMessageId, setScrollToMessageId] = useState(null);
   const [lastExtractedJson, setLastExtractedJson] = useState(null);
-  
+
   const [showAvatarZoom, setShowAvatarZoom] = useState(false);
   const [showCallOverlay, setShowCallOverlay] = useState(false);
   const [callType, setCallType] = useState('voice');
@@ -81,7 +81,7 @@ const SimulationWindow = forwardRef(({
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return;
       const ctx = new AudioContext();
-      
+
       if (soundType === 'sent') {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -138,10 +138,10 @@ const SimulationWindow = forwardRef(({
       csReply = result.csReply;
       extractionResult = result.extractionResult;
     }
-    
+
     setLastExtractedJson(extractionResult);
     if (onEvent && extractionResult) {
-       onEvent(simulationType, 'extracted', extractionResult);
+      onEvent(simulationType, 'extracted', extractionResult);
     }
 
     setTimeout(() => setContactStatus("Online"), 500);
@@ -197,8 +197,8 @@ const SimulationWindow = forwardRef(({
           return `${senderName}: ${m.text || `[Media: ${m.type}]`}`;
         }).join('\n');
 
-        const stockDataString = globalStock && globalStock.length > 0 
-          ? JSON.stringify(globalStock, null, 2) 
+        const stockDataString = globalStock && globalStock.length > 0
+          ? JSON.stringify(globalStock, null, 2)
           : "Belum ada stok yang dilaporkan/tervalidasi saat ini.";
 
         const promptText = `Hari ini tanggal: ${todayStr}, Kemarin tanggal: ${yesterdayStr}.\n\n--- DATABASE STOK TERVALIDASI PANGANDALI ---\n${stockDataString}\n------------------------------------------\n\nRiwayat chat terbaru:\n${recentMessages}\n\nPesan terbaru dari ${userPersonaName} (${userRoleName}): "${userMessageText}"\n\nTolong berikan respons yang ramah, alami, dan tidak kaku dalam properti 'csReply' (sebagai ${agentRoleName} dalam Bahasa Indonesia) dan hasil ekstraksi data (jika ada) di 'extractionResult' sesuai format skema JSON.`;
@@ -310,14 +310,14 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
         };
 
         setLastExtractedJson(finalizedResult);
-        
+
         if (onEvent) {
           onEvent(simulationType, 'extracted', finalizedResult);
         }
 
         const now = new Date();
         const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        
+
         const newReplyCS = {
           id: Date.now() + 1,
           text: csReply,
@@ -345,7 +345,7 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
     const msgId = Date.now();
     const now = new Date();
     const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    
+
     const newMsg = {
       id: msgId,
       text,
@@ -380,7 +380,7 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
       const msgId = Date.now();
       const now = new Date();
       const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-      
+
       const newMsg = {
         id: msgId,
         text,
@@ -391,10 +391,10 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
         reactions: [],
         ...customPayload
       };
-      
+
       setMessages(prev => [...prev, newMsg]);
       playSound(sender === 'me' ? 'sent' : 'received');
-      
+
       if (sender === 'me') {
         setTimeout(() => triggerAutoReply(text), 1000);
       }
@@ -515,7 +515,7 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
             </div>
           </div>
         ) : (
-          <ChatHeader 
+          <ChatHeader
             contactName={contactName}
             statusText={contactStatus}
             profilePic={profilePic}
@@ -525,7 +525,7 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
           />
         )}
 
-        <ChatArea 
+        <ChatArea
           messages={messages}
           statusText={contactStatus}
           selectedMessageId={selectedMessageId}
@@ -548,12 +548,12 @@ PENTING UNTUK DATA EKSTRAKSI (extractionResult):
 
         <AttachmentTray isOpen={isAttachmentOpen} onClose={() => setIsAttachmentOpen(false)} onSendMockMedia={handleSendMockMedia} />
 
-        <MessageInput 
+        <MessageInput
           onSendMessage={(txt) => handleSendMessage(txt, 'text')}
           onSendVoiceNote={handleSendVoiceNote}
           onToggleAttachment={() => setIsAttachmentOpen(!isAttachmentOpen)}
           isAttachmentOpen={isAttachmentOpen}
-          onUserTypingStateChange={(typing) => {}}
+          onUserTypingStateChange={(typing) => { }}
         />
 
         {showCallOverlay && (

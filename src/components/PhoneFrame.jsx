@@ -21,15 +21,15 @@ export default function PhoneFrame({ children }) {
     <div className="flex items-center justify-center h-full w-full p-0 md:p-2 select-none font-wa">
       {/* Phone chassis - only styled with bezel and shadow on medium screens and larger */}
       <div className="relative w-full h-full md:h-[820px] md:max-w-[390px] bg-[#0c1317] md:rounded-[36px] md:border-[8px] md:border-[#2d383e] shadow-2xl overflow-hidden flex flex-col transition-all duration-300">
-        
+
         {/* Camera notch / punch-hole (top center) - desktop only */}
         <div className="hidden md:block absolute top-[10px] left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-black rounded-full z-50"></div>
-        
+
         {/* Status Bar (Android Style) */}
         <div className="w-full h-8 bg-[#005e54] text-white flex justify-between items-center px-6 text-xs font-semibold z-40 select-none shrink-0 pt-1">
           {/* Time on the left */}
           <span>{time || "12:00"}</span>
-          
+
           {/* Icons on the right */}
           <div className="flex items-center gap-1.5">
             <Signal size={12} className="opacity-90" />
@@ -54,18 +54,18 @@ export default function PhoneFrame({ children }) {
               <polygon points="19,20 9,12 19,4" />
             </svg>
           </button>
-          
+
           {/* Home (Circle symbol) */}
           <button className="hover:text-white transition-colors duration-150 p-2 focus:outline-none">
             <div className="w-3.5 h-3.5 rounded-full border-2 border-current"></div>
           </button>
-          
+
           {/* Recent Apps (Square symbol) */}
           <button className="hover:text-white transition-colors duration-150 p-2 focus:outline-none">
             <div className="w-3.5 h-3.5 border-2 border-current rounded-[2px]"></div>
           </button>
         </div>
-        
+
       </div>
     </div>
   );
